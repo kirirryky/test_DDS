@@ -11,4 +11,4 @@ def add_transaction(request):
     else:
         form = TransactionForm()
 
-    return render(request, 'money_moving/add_transaction', {'form': form})
+    return render(request, 'money_moving/add_transaction.html', {'form': form})

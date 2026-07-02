@@ -15,10 +15,10 @@ class SubCategory(models.Model):
     Name = models.CharField(max_length=200)
 
 class MoneyMovement(models.Model):
-    date = models.DateField(default=date.today)
-    status = models.ForeignKey(Status, on_delete=models.PROTECT)
-    type = models.ForeignKey(Type, on_delete=models.PROTECT)
-    category = models.ForeignKey(Category, on_delete=models.PROTECT)
-    subcategory = models.ForeignKey(SubCategory, on_delete=models.PROTECT)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    comment = models.CharField(max_length=500, blank=True, null=True)
+    date = models.DateField(default=date.today, verbose_name="Дата транзакции")
+    status = models.ForeignKey(Status, on_delete=models.PROTECT, verbose_name="Статус")
+    type = models.ForeignKey(Type, on_delete=models.PROTECT, verbose_name="Тип")
+    category = models.ForeignKey(Category, on_delete=models.PROTECT, verbose_name="Категория")
+    subcategory = models.ForeignKey(SubCategory, on_delete=models.PROTECT, verbose_name="Подкатегория")
+    amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Сумма")
+    comment = models.CharField(max_length=500, blank=True, null=True, verbose_name="Комментарий")
