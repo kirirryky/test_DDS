@@ -3,16 +3,24 @@ from datetime import date
 
 # Create your models here.
 class Status(models.Model):
-    Name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, verbose_name="Название")
+    def __str__(self):
+        return self.name
 
 class Type(models.Model):
-    Name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, verbose_name="Название")
+    def __str__(self):
+        return self.name
 
 class Category(models.Model):
-    Name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, verbose_name="Название")
+    def __str__(self):
+        return self.name
 
 class SubCategory(models.Model):
-    Name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, verbose_name="Название")
+    def __str__(self):
+        return self.name
 
 class MoneyMovement(models.Model):
     date = models.DateField(default=date.today, verbose_name="Дата транзакции")

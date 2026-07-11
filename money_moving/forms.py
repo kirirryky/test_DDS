@@ -1,6 +1,7 @@
 from django import forms
 from .models import MoneyMovement
 from django.utils import timezone
+from .models import Category, Status, Type, SubCategory
 
 class TransactionForm(forms.ModelForm):
     date = forms.DateField(
@@ -21,3 +22,27 @@ class TransactionForm(forms.ModelForm):
             'amount': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '0.00'}),
             'comment': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Комментарий'})
         }
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['name']
+        widgets = {'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Например: Инфраструктура'})}
+
+class SubCategoryForm(forms.ModelForm):
+    class Meta:
+        model = SubCategory
+        fields = ['name']
+        widgets = {'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Например: VPN'})}
+
+class StatusForm(forms.ModelForm):
+    class Meta:
+        model = Status
+        fields = ['name']
+        widgets = {'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Например: Налог'})}
+
+class TypeForm(forms.ModelForm):
+    class Meta:
+        model = Type
+        fields = ['name']
+        widgets = {'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Например: Пополнение'})}

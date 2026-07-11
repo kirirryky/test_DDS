@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <title>Веб-сервис для управления движением денежных средств (ДДС)</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    <body class="bg-light">
+        <div class="container-fluid">
+            <div class="row" style="min-height: 100vh;">
+                <!-- Левая часть - меню -->
+                <div class="col-md-3 bd-dark text-white p-4">
+                    <h4 class="mb-4 text-center text-primary">Меню</h4>
+                    <hr>
+                    <div class="nav flex-column nav-pills mt-3">
+                        <a class="nav-link text-white bg-primary mb-2 active text-center" href="{% url 'main_menu' %}"> Главная</a>
+                        <a class="nav-link text-white bg-primary mb-2 active text-center" href="{% url 'add_transaction' %}"> Добавить транзакцию</a>
+                        <a class="nav-link text-white bg-primary mb-2 active text-center" href="{% url 'add_status' %}"> Добавить статус</a>
+                        <a class="nav-link text-white bg-primary mb-2 active text-center" href="{% url 'add_category' %}"> Добавить категорию</a>
+                        <a class="nav-link text-white bg-primary mb-2 active text-center" href="{% url 'add_subcategory' %}"> Добавить подкатегорию</a>
+                        <a class="nav-link text-white bg-primary mb-2 active text-center" href="{% url 'add_type' %}"> Добавить тип</a>
+                    </div>
+                </div>
+
+                <!-- Правая часть - таблица -->
+                <div class = "col-md-9 p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>История ДДС</h2>
+                    </div>
+                    <div class="card-shadow">
+                        <div class="card-body p-0">
+                            <table class="table table-hover table-striped mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Дата</th>
+                                        <th>Статус</th>
+                                        <th>Тип</th>
+                                        <th>Категория</th>
+                                        <th>Сумма</th>
+                                        <th>Комментарий</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for move in transactions %}
+                                    <tr>
+                                        <td>{{ move.date|date:"d.m.Y"}}</td>
+                                        <td><span class="badge bg-success">{{ move.status }}</span></td>
+                                        <td>{{ move.type }}</td>
+                                        <td>{{ move.category }}</td>
+                                        <td class="fw-bold">{{ move.amount }} руб.</td>
+                                        <td class="text-muted small">{{ move.comment|default:"" }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4 text-muted">В базе пока нет данных!</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
