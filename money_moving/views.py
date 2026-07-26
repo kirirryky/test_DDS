@@ -1,8 +1,20 @@
-from django.shortcuts import render, redirect
-from .forms import TransactionForm, CategoryForm, StatusForm, TypeForm, SubCategoryForm
-from .models import MoneyMovement
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from .forms import TransactionForm
+from .models import MoneyMovement, Type, Status, Category, SubCategory
+from datetime import date
 
 # Create your views here.
+
+# Словарь безопасности - что можно редактировать, для защиты таблиц типа User
+MODEL_MAP = {
+    'type': Type,
+    'status': Status,
+    'category': Category,
+    'subcategory': SubCategory,
+}
 
 #Меню
 def main_menu(request):
@@ -23,50 +35,100 @@ def add_transaction(request):
 
     return render(request, 'money_moving/add_transaction.html', {'form': form, 'transactions': transactions})
 
-#Добавить категорию
-def add_category(request):
-    if request.method == 'POST':
-        form = CategoryForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('main_menu')
-    else:
-        form = CategoryForm()
+@require_POST
+@login_required
+def add_item(request, model_name):
+    ModelClass = MODEL_MAP.get(model_name)
+    if not ModelClass:
+        messages.error(request, "Неверный тип справочника!")
+        return redirect('directory')
 
-    return render(request, 'money_moving/add_category.html', {'form': form})
+    name = request.POST.get('name', '').strip()
+    if not name:
+        messages.error(request, "Поле 'Название' обязательно для заполнения!")
+        return redirect('directory')
 
-#Добавить подкатегорию
-def add_subcategory(request):
-    if request.method == 'POST':
-        form = SubCategoryForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('main_menu')
-    else:
-        form = SubCategoryForm()
+    field_names = [f.name for f in ModelClass._meta.get_fields()] #<-- Получаем список всех полей из модели
+    create_kwargs = {'name': name}
 
-    return render(request, 'money_moving/add_subcategory.html', {'form': form})
+    if 'creator' in field_names:
+        create_kwargs['creator'] = request.user
 
-#Добавить статус
-def add_status(request):
-    if request.method == 'POST':
-        form = StatusForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('main_menu')
-    else:
-        form = StatusForm()
+    if 'date' in field_names:
+        create_kwargs['date'] = date.today()
 
-    return render(request, 'money_moving/add_status.html', {'form': form})
+    if 'comment' in field_names:
+        create_kwargs['comment'] = request.POST.get('comment', '').strip()
 
-#Добавить тип
-def add_type(request):
-    if request.method == 'POST':
-        form = TypeForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('main_menu')
-    else:
-        form = TypeForm()
+    if model_name == 'subcategory':
+        category_id = request.POST.get('category')
+        if category_id:
+            create_kwargs['category_id'] = category_id
+        else:
+            messages.error(request, "Для подкатегории необходимо выбрать родительскую категорию!")
+            return redirect('directory')
 
-    return render(request, 'money_moving/add_type.html', {'form': form})
+    try:
+        ModelClass.objects.create(**create_kwargs)
+        messages.success(request, f"Запись [{name}] успешно создана.")
+    except Exception as e:
+        messages.error(request, f"Ошибка БД: {e}")
+
+    return redirect('directory')
+
+
+@require_POST #Только "post" запросы
+def delete(request, model_name, item_id):
+    ModelClass = MODEL_MAP.get(model_name)
+    if not ModelClass:
+        messages.error(request, "Выбран неверный тип справочника!")
+        return redirect('directory')
+
+    item = get_object_or_404(ModelClass, pk=item_id)
+    item_name = str(item)
+    item.delete()
+
+    messages.success(request, f"Запись {item_name} успешно удалена.")
+    return redirect('directory')
+
+def edit(request, model_name, item_id):
+    ModelClass = MODEL_MAP.get(model_name)
+    if not ModelClass:
+        messages.error(request, "Ошибка, возможно выбранной записи уже не усуществует или у вас нет прав на редактирование!")
+        return redirect('directory')
+    
+    if request.method == "POST":
+        item = get_object_or_404(ModelClass, pk=item_id)
+        item.name = request.POST.get("name")
+
+        if hasattr(item, 'comment'):
+            item.comment = request.POST.get('comment', '')
+
+        # Для связи категории и подкатегории
+        if model_name == 'subcategory':
+            category_id = request.POST.get('category')
+            if category_id:
+                item.category_id = category_id
+
+        item.save()
+        messages.success(request, f"Запись {item.name} обновлена.")
+        return redirect('directory')
+
+    return redirect('directory')
+
+#Справочники
+@login_required
+def directory(request):
+
+    types = Type.objects.all()
+    statuses = Status.objects.all()
+    categories = Category.objects.all()
+    subcategories = SubCategory.objects.all().select_related('category')
+
+    context = {
+        'types': types, 
+        'statuses': statuses, 
+        'categories': categories, 
+        'subcategories': subcategories,
+    }
+    return render(request, 'money_moving/directory.html', context)

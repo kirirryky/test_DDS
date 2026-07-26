@@ -24,25 +24,47 @@ class TransactionForm(forms.ModelForm):
         }
 
 class CategoryForm(forms.ModelForm):
+    date = forms.DateTimeField(
+            initial=timezone.now,
+            label="Дата создания записи"
+    )
     class Meta:
         model = Category
-        fields = ['name']
-        widgets = {'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Например: Инфраструктура'})}
+        fields = ['date', 'name', 'comment']
+        widgets = {'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Например: Инфраструктура'}),
+                   'comment': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Комментарий'})}
 
 class SubCategoryForm(forms.ModelForm):
+    date = forms.DateTimeField(
+            initial=timezone.now,
+            label="Дата создания записи"
+    )
     class Meta:
         model = SubCategory
-        fields = ['name']
-        widgets = {'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Например: VPN'})}
+        fields = ['date', 'name', 'comment']
+        widgets = {'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Например: VPN'}),
+                   'comment': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Комментарий'})}
 
 class StatusForm(forms.ModelForm):
+    date = forms.DateTimeField(
+        initial=timezone.now,
+        label="Дата создания записи"
+    )
     class Meta:
         model = Status
-        fields = ['name']
-        widgets = {'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Например: Налог'})}
+        fields = ['date', 'name', 'comment']
+        widgets = {'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Например: Налог'}),
+                   'comment': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Комментарий'})}
 
 class TypeForm(forms.ModelForm):
+    date = forms.DateTimeField(
+            initial=timezone.now,
+            label="Дата создания записи"
+        )
     class Meta:
         model = Type
-        fields = ['name']
-        widgets = {'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Например: Пополнение'})}
+        fields = ['date', 'name', 'comment']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Например: Пополнение'}),
+            'comment': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Комментарий'})
+        }

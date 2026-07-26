@@ -16,14 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from money_moving.views import add_transaction, add_category, main_menu, add_status, add_type, add_subcategory
+from money_moving.views import add_transaction, main_menu, directory, delete, edit, add_item
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('main_menu', main_menu, name='main_menu'),
     path('add/', add_transaction, name='add_transaction'),
-    path('add_category/', add_category, name='add_category'),
-    path('add_subcategory/', add_subcategory, name='add_subcategory'),
-    path('add_status/', add_status, name='add_status'),
-    path('add_typ/', add_type, name='add_type'),
+    path('directory/', directory, name='directory'),
+    path('delete/<str:model_name>/<int:item_id>/', delete, name='delete_item'),
+    path('edit/<str:model_name>/<int:item_id>/', edit, name='edit_item'),
+    path('add/<str:model_name>/', add_item, name='add_item')
 ]

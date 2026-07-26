@@ -1,24 +1,38 @@
 from django.db import models
+from django.contrib.auth.models import User
 from datetime import date
 
 # Create your models here.
 class Status(models.Model):
+    date = models.DateField(default=date.today, verbose_name="Дата создания записи")
+    creator = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name="Создал")
     name = models.CharField(max_length=100, verbose_name="Название")
+    comment = models.CharField(max_length=500, blank=True, null=True, verbose_name="Комментарий")
     def __str__(self):
         return self.name
 
 class Type(models.Model):
+    date = models.DateField(default=date.today, verbose_name="Дата создания записи")
+    creator = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name="Создал")
     name = models.CharField(max_length=100, verbose_name="Название")
+    comment = models.CharField(max_length=500, blank=True, null=True, verbose_name="Комментарий")
     def __str__(self):
         return self.name
 
 class Category(models.Model):
+    date = models.DateField(default=date.today, verbose_name="Дата создания записи")
+    creator = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name="Создал")
     name = models.CharField(max_length=200, verbose_name="Название")
+    comment = models.CharField(max_length=500, blank=True, null=True, verbose_name="Комментарий")
     def __str__(self):
         return self.name
 
 class SubCategory(models.Model):
+    date = models.DateField(default=date.today, verbose_name="Дата создания записи")
+    creator = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name="Создал")
+    category = models.ForeignKey(Category, on_delete=models.PROTECT)
     name = models.CharField(max_length=200, verbose_name="Название")
+    comment = models.CharField(max_length=500, blank=True, null=True, verbose_name="Комментарий")
     def __str__(self):
         return self.name
 

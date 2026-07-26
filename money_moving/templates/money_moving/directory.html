@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <title>Справочники</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    <script scr="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    <body class="bg-light">
+
+        <!-- Блок сообщений -->
+        {% if messages %}
+        <div class="col-12">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags}} alert-dismissible fabe show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dissmis="alert" aria-label="Close">
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="container-fluid">
+            <div class="row" style="min-height: 100vh;">
+                <!-- Блоки справочников -->
+                 {% include "money_moving/directory_block.html" with title="Справочник типов" model_name="type" items=types empty_message="В базе пока нет типов!" %}
+                 {% include "money_moving/directory_block.html" with title="Справочник статусов" model_name="status" items=statuses empty_message="В базе пока нет статусов!" %}
+                 {% include "money_moving/directory_block.html" with title="Справочник категорий" model_name="category" items=categories empty_message="В базе пока нет категорий!" %}
+                 {% include "money_moving/directory_block.html" with title="Справочник подкатегорий" model_name="subcategory" items=subcategories empty_message="В базе пока нет подкатегорий!" %}
+            </div>
+        </div>
+
+            <!-- Модульное ДОБАВИТЬ -->
+                <div class="modal fade" id="addModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title" id="addModalTitle">Новая запись</h4>
+                                <button type="button" class="btn-close" data-bs-dissmis="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="post" id="addForm">
+                                    {% csrf_token %}
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Название <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="name" required>
+                                    </div>
+                                    
+                                    <!-- Подкатегория -->
+                                    <div class="mb-3" id="addCategoryBlock" style="display: none;">
+                                        <label class="form-label">Родительская категория <span class="text-danger">*</span></label>
+                                        <select class="form-select" name="category" id="addCategorySelect">
+                                            <option value="">Выберите категорию</option>
+                                            {% for cat in categories %}
+                                                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Комментарий</label>
+                                        <textarea class="form-control" name="comment" rows="2"></textarea>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-success w-100">Сохранить</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            <!-- Модульное окно РЕДАКТИРОВАТЬ -->
+                <div class="modal fade" id="editModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="mb-0">Редактирование</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="card-body p-4">
+                                    <form method="post" id="editForm">
+                                        {% csrf_token %}
+                                        <div class="mb-3">
+                                            <div class="form-label">Название</div>
+                                            <input type="text" class="form-control" name="name" id="editName" required>
+                                        </div>
+
+                                        <!-- Только для подкатегорий -->
+                                         <div class="mb-3" id="categorySelectBlock" style="display: none;">
+                                            <label class="form-label">Родительская категория</label>
+                                            <select class="form-select" name="category" id="editCategory">
+                                                {% for cat in categories %}
+                                                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                         </div>
+                                         
+                                         <div class="mb-3" id="commentBlock">
+                                            <label class="form-label">Комментарий</label>
+                                            <textarea class="form-control" name="comment" id="editComment" rows="2"></textarea>
+                                         </div>
+
+                                         <button type="submit" class="btn btn-primary w-100">Сохранить</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>    
+
+                <!-- Модульное окно УДАЛЕНИЕ -->
+                <div class="modal fade" id="deleteModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="mb-0">Удаление</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="card-body p-4">
+                                    <form method="post" id="deleteForm">
+                                        {% csrf_token %}
+                                        <p>
+                                            Вы действительно хотите удалить запись?
+                                            <strong id="deleteItemName"></strong>
+                                        </p>
+                                        <button type="submit" class="btn btn-danger">Удалить</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            // JS добавления
+            document.getElementById('addModal').addEventListener('show.bs.modal', function(event){
+                const button = event.relatedTarget;
+                const model = button.getAttribute('data-model');
+
+                document.getElementById('addForm').action = `/add/${model}/`;
+
+                const titles = {
+                    'type': 'Новый тип транзакции',
+                    'status': 'Новый статус',
+                    'category': 'Новая категория',
+                    'subcategory': 'Новая подкатегория'
+                };
+                document.getElementById('addModalTitle').textContent = titles[model] || 'Новая запись';
+
+                const categoryBlock = document.getElementById('addCategoryBlock');
+                const categorySelect = document.getElementById('addCategorySelect');
+
+                if(model === 'subcategory'){
+                    categoryBlock.style.display = 'block';
+                    categorySelect.requierd = true;
+                } else {
+                    categoryBlock.style.display = 'none';
+                    categorySelect.requierd = false;
+                    categorySelect.value = "";
+                }
+
+                document.getElementById('addForm').reset();
+            });
+
+            // JS удаления
+            document.getElementById('deleteModal').addEventListener('show.bs.modal', function(event){
+                const button = event.relatedTarget;
+                const model = button.getAttribute('data-model');
+                const id = button.getAttribute('data-id');
+                const name = button.getAttribute('data-name');
+
+                console.log("JS сработал ID: ", id, "Имя: ", name);
+
+                document.getElementById('deleteItemName').textContent = name;
+                document.getElementById('deleteForm').action = `/delete/${model}/${id}/`;
+            });
+
+            // JS редактирования
+            document.getElementById('editModal').addEventListener('show.bs.modal', function(event){
+                const button = event.relatedTarget;
+                const model = button.getAttribute('data-model');
+                const id = button.getAttribute('data-id');
+                const name = button.getAttribute('data-name');
+                const comment = button.getAttribute('data-comment');
+                const categoryId = button.getAttribute('data-category');
+
+                document.getElementById('editForm').action = `/edit/${model}/${id}/`;
+                document.getElementById('editName').value = name;
+                document.getElementById('editComment').value = comment || '';
+
+                // Логика для подкатегорий
+                const catBlock = document.getElementById('categorySelectBlock');
+                if(model === 'subcategory'){
+                    catBlock.style.display = 'block';
+                    if(categoryId){
+                        document.getElementById('editCategory').value = categoryId;
+                    } else {
+                        catBlock.style.display = 'none';
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>
