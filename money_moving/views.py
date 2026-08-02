@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
+from django.db.models import Q
 from .forms import TransactionForm
 from .models import MoneyMovement, Type, Status, Category, SubCategory
 from datetime import date
@@ -14,6 +15,7 @@ MODEL_MAP = {
     'status': Status,
     'category': Category,
     'subcategory': SubCategory,
+    'transaction': MoneyMovement,
 }
 
 #Меню
@@ -132,3 +134,90 @@ def directory(request):
         'subcategories': subcategories,
     }
     return render(request, 'money_moving/directory.html', context)
+
+@login_required
+def all_transactions(request):
+    #Все транзакции с связанными данными
+    transactions = MoneyMovement.objects.select_related(
+        'status', 'type', 'category', 'subcategory'
+    ).all()
+
+    # === ФИЛЬТРАЦИЯ === 
+    # Фильтрация по дате (от)
+    date_from = request.GET.get('date_from')
+    if date_from:
+        transactions = transactions.filter(date__gte = date_from)
+
+    # Фильтрация по дате (до)
+    date_to = request.GET.get('date_to')
+    if date_to:
+        transactions = transactions.filter(date__lte = date_to)
+
+    # Фильтр по статусу
+    status_id = request.GET.get('status')
+    if status_id:
+        transactions = transactions.filter(status_id = status_id)
+
+    # Фильтр по типу
+    type_id = request.GET.get('type')
+    if type_id:
+        transactions = transactions.filter(type_id = type_id)
+
+    # Фильтр по категории
+    category_id = request.GET.get('category')
+    if category_id:
+        transactions = transactions.filter(category_id = category_id)
+
+    # Фильтр по подкатегории
+    subcategory_id = request.GET.get('subcategory')
+    if subcategory_id:
+        transactions = transactions.filter(subcategory_id = subcategory_id)
+
+    # Фильтр по сумме (от)
+    amount_from = request.GET.get('amount_from')
+    if amount_from:
+        transactions = transactions.filter(amount__gte = amount_from)
+
+    # Фильтр по сумме (до)
+    amount_to = request.GET.get('amount_to')
+    if amount_to:
+        transactions = transactions.filter(amount__lte = amount_to)
+
+    # Поиск по комментарию
+    search = request.GET.get('search')
+    if search:
+        transactions = transactions.filter(
+            Q(comment__icontains = search) |
+            Q(comment__name__icontains = search) |
+            Q(subcategory__name__icontains = search)
+        )
+
+    # === СОРТИРОВКА ===
+    sort_by = request.GET.get('sort', '-date') # по умолчанию
+
+    valid_sort_fields = ['date' , '-date', 'status__name', '-status__name', 
+                         'type__name', '-type__name', 'category__name', '-category__name', 
+                         'subcategory__name', '-subcategory__name', 'amount', '-amount']
+
+    if sort_by in valid_sort_fields:
+        transactions = transactions.order_by(sort_by)
+    else:
+        transactions = transactions.order_by('-date')
+
+    from django.core.paginator import Paginator
+    paginator = Paginator(transactions, 25) #25 записей на страницу
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'statuses': Status.objects.all(),
+        'types': Type.objects.all(),
+        'categories': Category.objects.all(),
+        'subcategories': SubCategory.objects.all(),
+        'current_sort': sort_by,
+        # Сохраняем фильтры
+        'current_filters': request.GET.dict(),
+    }
+
+    return render(request, 'money_moving/all_transactions.html', context)

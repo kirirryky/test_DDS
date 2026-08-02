@@ -4,30 +4,42 @@
         <meta charset="UTF-8">
         <title>Справочники</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+        {% load static %}
+        <link href="{% static 'css/style.css' %}" rel="stylesheet">
     </head>
     <script scr="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
     <body class="bg-light">
+
+        <!-- Плавающее меню -->
+         <nav class="side-nav">
+            <a href="#types" title="Типы">📋</a>
+            <a href="#statuses" title="Статусы">📊</a>
+            <a href="#categories" title="Категории">📁</a>
+            <a href="#subcategories" title="Подкатегории">📂</a>
+            <div class="divider"></div>
+            <a href="{% url 'main_menu' %}" title="Вернуться на главную">🏠</a>
+         </nav>
 
         <!-- Блок сообщений -->
         {% if messages %}
         <div class="col-12">
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags}} alert-dismissible fabe show" role="alert">
+                <div class="alert alert-{{ message.tags}} alert-dismissible fade show" role="alert">
                     {{ message }}
-                    <button type="button" class="btn-close" data-bs-dissmis="alert" aria-label="Close">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
                     </button>
                 </div>
             {% endfor %}
         </div>
         {% endif %}
 
-        <div class="container-fluid">
-            <div class="row" style="min-height: 100vh;">
+        <div class="container-fluid py-4">
+            <div class="row justify-content-center">
                 <!-- Блоки справочников -->
-                 {% include "money_moving/directory_block.html" with title="Справочник типов" model_name="type" items=types empty_message="В базе пока нет типов!" %}
-                 {% include "money_moving/directory_block.html" with title="Справочник статусов" model_name="status" items=statuses empty_message="В базе пока нет статусов!" %}
-                 {% include "money_moving/directory_block.html" with title="Справочник категорий" model_name="category" items=categories empty_message="В базе пока нет категорий!" %}
-                 {% include "money_moving/directory_block.html" with title="Справочник подкатегорий" model_name="subcategory" items=subcategories empty_message="В базе пока нет подкатегорий!" %}
+                 {% include "money_moving/directory_block.html" with id="types" title="Справочник типов" model_name="type" items=types empty_message="В базе пока нет типов!" %}
+                 {% include "money_moving/directory_block.html" with id="statuses" title="Справочник статусов" model_name="status" items=statuses empty_message="В базе пока нет статусов!" %}
+                 {% include "money_moving/directory_block.html" with id="categories" title="Справочник категорий" model_name="category" items=categories empty_message="В базе пока нет категорий!" %}
+                 {% include "money_moving/directory_block.html" with id="subcategories" title="Справочник подкатегорий" model_name="subcategory" items=subcategories empty_message="В базе пока нет подкатегорий!" %}
             </div>
         </div>
 
@@ -133,7 +145,7 @@
                     </div>
                 </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script>
             // JS добавления
             document.getElementById('addModal').addEventListener('show.bs.modal', function(event){

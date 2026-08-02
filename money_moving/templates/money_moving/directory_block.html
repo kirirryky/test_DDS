@@ -1,10 +1,12 @@
-<div class="col-md-9 p-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4>{{ title }}</h4>
-        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addModal" data-model="{{ model_name }}" title="Добавить">➕</button>
-    </div>
-    <div class="card-shadow">
-        <div class="card-body p-0">
+<section id="{{ id }}" class="col-md-9 p-4">
+    <div class="directory-card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4>{{ title }}</h4>
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addModal" data-model="{{ model_name }}" title="Добавить">➕</button>
+        </div>
+
+
+        <div class="table-responsive">
             <table class="table table-hover table-striped mb-0">
                 <thead class="table-dark">
                     <tr>
@@ -34,7 +36,7 @@
                                      title="Редактировать">
                                     ✏️
                                     </button>
-                            
+                                
                             <!-- Кнопка удалить -->
                              <button class="btn btn-sm btn-outline-danger"
                                      data-bs-toggle="modal" data-bs-target="#deleteModal"
@@ -55,4 +57,5 @@
             </table>
         </div>
     </div>
-</div>
+    
+</section>
