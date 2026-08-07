@@ -124,7 +124,7 @@
                                 <tr>
                                     <th>
                                         <a href="?{% for key, value in current_filters.items %}{% if key != 'sort' %}
-                                        {{ key }} = {{ value }} & {% endif %}{% endfor %}sort=date" class="sort-link">
+                                        {{ key }} = {{ value }} & {% endif %}{% endfor %}sort={% if current_sort == 'date' %}-date{% else %}date{% endif %}" class="sort-link">
                                         Дата
                                         {% if current_sort == 'date' %}<span class="sort-indicator">↑</span>
                                         {% elif current_sort == '-date' %}<span class="sort-indicator">↓</span>{% endif %}
@@ -132,7 +132,7 @@
                                     </th>
                                     <th>
                                         <a href="?{% for key, value in current_filters.items %}{% if key != 'sort' %}
-                                        {{ key }} = {{ value }} & {% endif %}{% endfor %}sort=status__name" class="sort-link">
+                                        {{ key }} = {{ value }} & {% endif %}{% endfor %}sort={% if current_sort == 'status__name' %}-status__name{% else %}status__name{% endif %}" class="sort-link">
                                         Статус
                                         {% if current_sort == 'status__name' %}<span class="sort-indicator">↑</span>
                                         {% elif current_sort == '-status__name' %}<span class="sort-indicator">↓</span>{% endif %}
@@ -140,7 +140,7 @@
                                     </th>
                                     <th>
                                         <a href="?{% for key, value in current_filters.items %}{% if key != 'sort' %}
-                                        {{ key }} = {{ value }} & {% endif %}{% endfor %}sort=type__name" class="sort-link">
+                                        {{ key }} = {{ value }} & {% endif %}{% endfor %}sort={% if current_sort == 'type__name' %}-type__name{% else %}type__name{% endif %}" class="sort-link">
                                         Тип
                                         {% if current_sort == 'type__name' %}<span class="sort-indicator">↑</span>
                                         {% elif current_sort == '-type__name' %}<span class="sort-indicator">↓</span>{% endif %}
@@ -150,7 +150,7 @@
                                     <th>Подкатегория</th>
                                     <th>
                                         <a href="?{% for key, value in current_filters.items %}{% if key != 'sort' %}
-                                        {{ key }} = {{ value }} & {% endif %}{% endfor %}sort=amount" class="sort-link">
+                                        {{ key }} = {{ value }} & {% endif %}{% endfor %}sort={% if current_sort == 'amount' %}-amount{% else %}amount{% endif %}" class="sort-link">
                                         Сумма
                                         {% if current_sort == 'amount' %}<span class="sort-indicator">↑</span>
                                         {% elif current_sort == '-amount' %}<span class="sort-indicator">↓</span>{% endif %}
